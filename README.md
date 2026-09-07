@@ -138,7 +138,11 @@ turns the heuristic off entirely; `exclude` bans names from the auto pick; and
 `values` overrides the cycled values for a control (e.g. a specific enum
 subset, or a short/long text pair).
 
-## Packages
+## Repo layout
+
+storyreel ships as a **single npm package**. The repo is split into workspace
+packages anyway, because the split is what keeps the code comprehensible — and
+because it makes one boundary impossible to erode by accident:
 
 | Package | Responsibility |
 | --- | --- |
@@ -146,9 +150,12 @@ subset, or a short/long text pair).
 | `@storyreel/engine` | timeline compiler, virtual-time frame loop, ffmpeg. Knows nothing about Storybook — it speaks the `SceneSource` interface. |
 | `@storyreel/adapter-storybook` | index.json discovery, mount, `updateStoryArgs`, argTypes → controls, auto-storyboard |
 | `@storyreel/harness` | single-file HTML: themed background, story card, controls panel, captions, watermark |
-| `storyreel` | CLI, config loading, batch |
+| `storyreel` | CLI, config loading, batch — the only published package |
 
-The engine never imports the adapter. New adapters implement `SceneSource`.
+The engine does not depend on the adapter, so it cannot reach into Storybook
+internals without the build failing. Both plug into `schema`. The four internal
+packages are `private: true` and get inlined into the published CLI by
+[packages/cli/build-bundle.mjs](packages/cli/build-bundle.mjs).
 
 ## License
 

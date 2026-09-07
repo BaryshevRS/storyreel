@@ -2,8 +2,11 @@
   "name": "@storyreel/adapter-storybook",
   "version": "0.1.0",
   "license": "Apache-2.0",
-  "publishConfig": { "access": "public" },
-  "repository": { "type": "git", "url": "git+https://github.com/BaryshevRS/storyreel.git", "directory": "packages/adapter-storybook" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BaryshevRS/storyreel.git",
+    "directory": "packages/adapter-storybook"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -13,10 +16,11 @@
       "default": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc -b",
-    "prepublishOnly": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -b --force"
+    "build": "tsc -b"
   },
   "dependencies": {
     "@storyreel/schema": "workspace:*",
@@ -24,5 +28,6 @@
   },
   "peerDependencies": {
     "playwright": "^1.49.1"
-  }
+  },
+  "private": true
 }

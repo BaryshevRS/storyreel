@@ -2,30 +2,53 @@
   "name": "storyreel",
   "version": "0.1.0",
   "license": "Apache-2.0",
-  "publishConfig": { "access": "public" },
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Turn Storybook stories into smooth, deterministic component demo videos.",
-  "repository": { "type": "git", "url": "git+https://github.com/BaryshevRS/storyreel.git", "directory": "packages/cli" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BaryshevRS/storyreel.git",
+    "directory": "packages/cli"
+  },
   "homepage": "https://github.com/BaryshevRS/storyreel#readme",
   "bugs": "https://github.com/BaryshevRS/storyreel/issues",
-  "keywords": ["storybook", "video", "demo", "screencast", "component", "design-system", "mp4", "gif"],
+  "keywords": [
+    "storybook",
+    "video",
+    "demo",
+    "screencast",
+    "component",
+    "design-system",
+    "mp4",
+    "gif"
+  ],
   "type": "module",
   "bin": {
     "storyreel": "./dist/bin.js"
   },
   "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "harness.html"
+  ],
   "scripts": {
     "build": "tsc -b",
-    "prepublishOnly": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -b --force"
+    "prepublishOnly": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && node build-bundle.mjs",
+    "bundle": "node build-bundle.mjs"
   },
   "dependencies": {
+    "commander": "^12.1.0",
+    "ffmpeg-static": "^5.2.0",
+    "jiti": "^2.4.2",
+    "playwright": "^1.49.1",
+    "sirv": "^3.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
     "@storyreel/adapter-storybook": "workspace:*",
     "@storyreel/engine": "workspace:*",
     "@storyreel/harness": "workspace:*",
-    "@storyreel/schema": "workspace:*",
-    "commander": "^12.1.0",
-    "jiti": "^2.4.2",
-    "playwright": "^1.49.1"
+    "@storyreel/schema": "workspace:*"
   }
 }

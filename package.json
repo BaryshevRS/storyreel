@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "license": "Apache-2.0",
   "description": "Turn Storybook stories into smooth, deterministic component demo videos.",
-  "repository": { "type": "git", "url": "git+https://github.com/BaryshevRS/storyreel.git" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BaryshevRS/storyreel.git"
+  },
   "homepage": "https://github.com/BaryshevRS/storyreel#readme",
   "bugs": "https://github.com/BaryshevRS/storyreel/issues",
   "private": true,
@@ -24,13 +27,17 @@
     "@storyreel/engine": "workspace:*",
     "@storyreel/harness": "workspace:*",
     "@storyreel/schema": "workspace:*",
-    "storyreel": "workspace:*",
     "@types/node": "^22.10.0",
+    "esbuild": "^0.28.2",
     "playwright": "^1.49.1",
+    "storyreel": "workspace:*",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild", "ffmpeg-static"]
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "ffmpeg-static"
+    ]
   }
 }
