@@ -2,6 +2,7 @@
   "name": "storyreel",
   "version": "0.1.0",
   "license": "Apache-2.0",
+  "publishConfig": { "access": "public" },
   "description": "Turn Storybook stories into smooth, deterministic component demo videos.",
   "repository": { "type": "git", "url": "git+https://github.com/BaryshevRS/storyreel.git", "directory": "packages/cli" },
   "homepage": "https://github.com/BaryshevRS/storyreel#readme",
@@ -15,7 +16,8 @@
   "types": "./dist/index.d.ts",
   "files": ["dist"],
   "scripts": {
-    "build": "tsc -b"
+    "build": "tsc -b",
+    "prepublishOnly": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -b --force"
   },
   "dependencies": {
     "@storyreel/adapter-storybook": "workspace:*",

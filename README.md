@@ -5,26 +5,34 @@ screen recording, no editing. storyreel renders each frame separately under a
 frozen virtual clock in headless Chrome, so the output is perfectly smooth at any
 fps and regenerates from code every time your component changes.
 
-```
-┌─────────────────────────────────────────┐
-│  (theme gradient background)             │
-│   ┌───────────────────┐  ┌───────────┐   │
-│   │   story on a card │  │ variant ▸ │   │
-│   │   (shadow+radius) │  │ size   ▸  │   │
-│   └───────────────────┘  └───────────┘   │
-│              [caption]                    │
-└──────────────────────── made with storyreel ┘
+![A toast component cycling through its severity states, rendered by storyreel](examples/toast-boomerang.gif)
+
+*Real output, straight from the CLI: `severity` cycled info → success → warning → error and back, as a seamless pingpong loop. The component's own CSS entrance and progress-bar animations keep running correctly through the reversed frames. See [examples/](examples/) for the config that produced it and more clips.*
+
+## Install
+
+```bash
+npx storyreel@latest doctor -s http://localhost:6006   # no install
+npm install -g storyreel                               # or keep it around
 ```
 
-## Install & build (monorepo)
+One extra step, once: storyreel drives a real browser, and Playwright ships
+Chromium separately from the npm package.
+
+```bash
+npx playwright install chromium
+```
+
+ffmpeg is bundled via `ffmpeg-static` — no system ffmpeg needed. `storyreel
+doctor` checks all of this and tells you what is missing.
+
+### From source
 
 ```bash
 pnpm install
-pnpm exec playwright install chromium   # one-time browser download
+pnpm exec playwright install chromium
 pnpm build
 ```
-
-The ffmpeg binary is bundled via `ffmpeg-static` — no system ffmpeg needed.
 
 ## CLI
 

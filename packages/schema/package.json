@@ -2,6 +2,7 @@
   "name": "@storyreel/schema",
   "version": "0.1.0",
   "license": "Apache-2.0",
+  "publishConfig": { "access": "public" },
   "repository": { "type": "git", "url": "git+https://github.com/BaryshevRS/storyreel.git", "directory": "packages/schema" },
   "type": "module",
   "main": "./dist/index.js",
@@ -14,7 +15,8 @@
   },
   "files": ["dist"],
   "scripts": {
-    "build": "tsc -b"
+    "build": "tsc -b",
+    "prepublishOnly": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -b --force"
   },
   "dependencies": {
     "zod": "^3.24.1"
