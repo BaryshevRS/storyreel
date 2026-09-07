@@ -3,6 +3,10 @@ name: release-please
 on:
   push:
     branches: [main]
+  # Manual trigger: recovery path when a release exists but never published.
+  # A release created with GITHUB_TOKEN cannot trigger another workflow, so
+  # publish has to live in this file rather than react to `release: published`.
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -16,7 +20,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
+      releases_created: ${{ steps.release.outputs.releases_created }}
     steps:
       - uses: googleapis/release-please-action@v5
         id: release
@@ -27,7 +31,7 @@ jobs:
 
   publish:
     needs: release-please
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    if: ${{ needs.release-please.outputs.releases_created == 'true' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     permissions:
       id-token: write # OIDC for npm Trusted Publishing + provenance
