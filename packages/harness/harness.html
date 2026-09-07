@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>storyreel harness</title>
+    <style>
+      :root {
+        /* gradient-dusk theme (default). Themes override these vars. */
+        --bg-from: #2b1e5e;
+        --bg-to: #10213f;
+        --card-bg: #ffffff;
+        --card-fg: #1a1a2e;
+        --panel-bg: rgba(255, 255, 255, 0.08);
+        --panel-fg: #eef1ff;
+        --panel-border: rgba(255, 255, 255, 0.14);
+        --accent: #8b7bff;
+        --accent-soft: rgba(139, 123, 255, 0.22);
+        --caption-fg: #ffffff;
+        --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+          Arial, sans-serif;
+      }
+
+      [data-theme='gradient-dusk'] {
+        --bg-from: #2b1e5e;
+        --bg-to: #10213f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: var(--font);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      #stage {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4%;
+        padding: 6% 5%;
+        background: radial-gradient(
+            120% 120% at 20% 10%,
+            var(--bg-from) 0%,
+            var(--bg-to) 70%
+          ),
+          var(--bg-to);
+      }
+
+      #card {
+        position: relative;
+        flex: 1 1 auto;
+        max-width: 62%;
+        height: 100%;
+        background: var(--card-bg);
+        color: var(--card-fg);
+        border-radius: 16px;
+        box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.55),
+          0 8px 24px -12px rgba(0, 0, 0, 0.35);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #story-frame {
+        border: 0;
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        display: block;
+      }
+
+      #panel {
+        flex: 0 0 auto;
+        width: 320px;
+        max-height: 100%;
+        overflow: hidden;
+        background: var(--panel-bg);
+        color: var(--panel-fg);
+        border: 1px solid var(--panel-border);
+        border-radius: 16px;
+        padding: 20px;
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      #panel[hidden] {
+        display: none;
+      }
+
+      #panel h2 {
+        margin: 0 0 4px;
+        font-size: 13px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        opacity: 0.6;
+        font-weight: 600;
+      }
+
+      .ctrl {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid transparent;
+        transition: none;
+      }
+
+      .ctrl.active {
+        background: var(--accent-soft);
+        border-color: var(--accent);
+      }
+
+      .ctrl .name {
+        font-size: 14px;
+        opacity: 0.82;
+        font-weight: 500;
+      }
+
+      .ctrl.active .name {
+        opacity: 1;
+      }
+
+      .ctrl .value {
+        font-size: 14px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .chip {
+        padding: 3px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.1);
+        font-size: 13px;
+      }
+
+      .ctrl.active .chip {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .toggle {
+        width: 34px;
+        height: 20px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.18);
+        position: relative;
+        flex: 0 0 auto;
+      }
+
+      .toggle::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #fff;
+      }
+
+      .toggle.on {
+        background: var(--accent);
+      }
+
+      .toggle.on::after {
+        left: 16px;
+      }
+
+      #caption {
+        position: fixed;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        pointer-events: none;
+        opacity: 0;
+      }
+
+      #caption.pos-bottom {
+        bottom: 6%;
+      }
+
+      #caption.pos-top {
+        top: 6%;
+      }
+
+      #caption .inner {
+        background: rgba(0, 0, 0, 0.42);
+        color: var(--caption-fg);
+        padding: 10px 20px;
+        border-radius: 999px;
+        font-size: 20px;
+        font-weight: 500;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+
+      #watermark {
+        position: fixed;
+        right: 22px;
+        bottom: 18px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.5);
+        letter-spacing: 0.04em;
+        pointer-events: none;
+      }
+
+      #watermark[hidden] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage" data-theme="gradient-dusk">
+      <div id="card">
+        <iframe id="story-frame" title="story" scrolling="no"></iframe>
+      </div>
+      <aside id="panel" hidden>
+        <h2>Controls</h2>
+        <div id="ctrl-list"></div>
+      </aside>
+    </div>
+    <div id="caption" class="pos-bottom"><span class="inner"></span></div>
+    <div id="watermark" hidden>made with storyreel</div>
+
+    <script>
+      (function () {
+        const stage = document.getElementById('stage');
+        const panel = document.getElementById('panel');
+        const ctrlList = document.getElementById('ctrl-list');
+        const caption = document.getElementById('caption');
+        const captionInner = caption.querySelector('.inner');
+        const watermark = document.getElementById('watermark');
+
+        /** @type {Record<string, {meta: any, el: HTMLElement, valueEl: HTMLElement}>} */
+        let controls = {};
+        /** Baseline values (story defaults), overridden by per-frame values. */
+        let baseline = {};
+
+        function formatValue(type, value) {
+          if (value === undefined || value === null) return '—';
+          if (type === 'number') {
+            const n = Number(value);
+            if (!Number.isFinite(n)) return String(value);
+            return Number.isInteger(n) ? String(n) : n.toFixed(1);
+          }
+          if (type === 'boolean') return value ? 'true' : 'false';
+          return String(value);
+        }
+
+        function init(msg) {
+          stage.setAttribute('data-theme', msg.theme || 'gradient-dusk');
+          document.documentElement.style.setProperty('--_size', '');
+
+          // Hide the panel when there is nothing to show (story without controls).
+          panel.hidden = !msg.showArgsPanel || !(msg.controls || []).length;
+          watermark.hidden = !msg.watermark;
+          baseline = msg.values || {};
+
+          ctrlList.innerHTML = '';
+          controls = {};
+          for (const meta of msg.controls || []) {
+            const row = document.createElement('div');
+            row.className = 'ctrl';
+
+            const name = document.createElement('span');
+            name.className = 'name';
+            name.textContent = meta.name;
+
+            const value = document.createElement('span');
+            value.className = 'value';
+
+            row.appendChild(name);
+            row.appendChild(value);
+            ctrlList.appendChild(row);
+            controls[meta.name] = { meta, el: row, valueEl: value };
+          }
+          window.__STORYREEL__.ready = true;
+        }
+
+        function renderValue(entry, value) {
+          const { meta, valueEl } = entry;
+          valueEl.innerHTML = '';
+          if (meta.type === 'boolean') {
+            const t = document.createElement('span');
+            t.className = 'toggle' + (value ? ' on' : '');
+            valueEl.appendChild(t);
+          } else if (meta.type === 'enum' || meta.type === 'text' || meta.type === 'color') {
+            const chip = document.createElement('span');
+            chip.className = 'chip';
+            if (meta.type === 'color' && typeof value === 'string') {
+              const sw = document.createElement('span');
+              sw.style.display = 'inline-block';
+              sw.style.width = '10px';
+              sw.style.height = '10px';
+              sw.style.borderRadius = '50%';
+              sw.style.background = value;
+              sw.style.marginRight = '6px';
+              chip.appendChild(sw);
+            }
+            chip.appendChild(document.createTextNode(formatValue(meta.type, value)));
+            valueEl.appendChild(chip);
+          } else {
+            valueEl.textContent = formatValue(meta.type, value);
+          }
+        }
+
+        function update(state) {
+          const values = Object.assign({}, baseline, state.values || {});
+          for (const name in controls) {
+            const entry = controls[name];
+            entry.el.classList.toggle('active', state.activeControl === name);
+            renderValue(entry, values[name]);
+          }
+
+          if (state.caption && state.caption.text) {
+            captionInner.textContent = state.caption.text;
+            caption.className =
+              'pos-' + (state.caption.position === 'top' ? 'top' : 'bottom');
+            caption.style.opacity = String(state.caption.opacity ?? 1);
+          } else {
+            caption.style.opacity = '0';
+          }
+        }
+
+        window.__STORYREEL__ = {
+          ready: false,
+          init: init,
+          update: update,
+          getIframe: function () {
+            return document.getElementById('story-frame');
+          },
+        };
+      })();
+    </script>
+  </body>
+</html>

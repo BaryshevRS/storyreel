@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/schema" },
+    { "path": "packages/harness" },
+    { "path": "packages/adapter-storybook" },
+    { "path": "packages/engine" },
+    { "path": "packages/cli" }
+  ]
+}

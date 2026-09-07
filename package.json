@@ -1,0 +1,36 @@
+{
+  "name": "storyreel-monorepo",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "description": "Turn Storybook stories into smooth, deterministic component demo videos.",
+  "repository": { "type": "git", "url": "git+https://github.com/BaryshevRS/storyreel.git" },
+  "homepage": "https://github.com/BaryshevRS/storyreel#readme",
+  "bugs": "https://github.com/BaryshevRS/storyreel/issues",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.1.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter \"./packages/*\" run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -b",
+    "cli": "node --experimental-strip-types packages/cli/src/bin.ts"
+  },
+  "devDependencies": {
+    "@storyreel/adapter-storybook": "workspace:*",
+    "@storyreel/engine": "workspace:*",
+    "@storyreel/harness": "workspace:*",
+    "@storyreel/schema": "workspace:*",
+    "storyreel": "workspace:*",
+    "@types/node": "^22.10.0",
+    "playwright": "^1.49.1",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "ffmpeg-static"]
+  }
+}
