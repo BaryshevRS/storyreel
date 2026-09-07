@@ -1,0 +1,52 @@
+name: release-please
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+    steps:
+      - uses: googleapis/release-please-action@v5
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # OIDC for npm Trusted Publishing + provenance
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      # No registry-url: it makes setup-node write a placeholder authToken into
+      # .npmrc, which forces token auth and 404s. Without it npm uses the default
+      # registry and the OIDC trusted-publisher flow (needs npm >= 11.5.1 = Node 24).
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: pnpm install --frozen-lockfile
+      # Full gate: a release that cannot build or pass its tests never reaches
+      # npm. prepublishOnly only bundles, so the checks belong here.
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm build
+      - run: pnpm test
+      # Only `storyreel` publishes; the four workspace packages are private:true
+      # and get inlined into it. No NODE_AUTH_TOKEN: auth is via OIDC (Trusted
+      # Publisher), provenance is automatic.
+      - run: pnpm -r publish --no-git-checks

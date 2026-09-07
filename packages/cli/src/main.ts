@@ -17,11 +17,19 @@ import {
   listStories,
   autoStoryboard,
 } from '@storyreel/adapter-storybook';
+import { createRequire } from 'node:module';
 import { loadConfig } from './config-loader.js';
 import { runRender, probeControls, prepareAutoScenes } from './runner.js';
 import { exampleConfig, serializeConfig } from './config-template.js';
 import { buildEmbedSnippet } from './embed-snippet.js';
 import { runDoctor } from './doctor.js';
+
+// Read from package.json so `--version` cannot drift from what was published;
+// release-please bumps that file. Resolves to <pkg>/package.json both from
+// tsc's dist/main.js and from the published single-file bundle.
+const { version: VERSION } = createRequire(import.meta.url)('../package.json') as {
+  version: string;
+};
 
 const DEFAULT_CONFIG = 'reel.config.ts';
 const DEFAULT_STORYBOOK = 'http://localhost:6006';
@@ -73,7 +81,7 @@ export function buildProgram(): Command {
   program
     .name('storyreel')
     .description('Turn Storybook stories into smooth component demo videos')
-    .version('0.1.0');
+    .version(VERSION);
 
   program
     .command('init')

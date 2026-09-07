@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # storyreel drives a real browser, and Playwright ships Chromium
+      # separately from the npm package. --with-deps pulls the system libraries
+      # headless Chrome needs on a bare ubuntu runner.
+      - run: pnpm exec playwright install --with-deps chromium
+      # The tests resolve @storyreel/* and storyreel through dist/, not src/,
+      # so the workspace has to be built before vitest runs. The e2e suite also
+      # builds the fixture Storybook on first use, which is why it is slow.
+      - run: pnpm build
+      - run: pnpm test
