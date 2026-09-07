@@ -1,0 +1,43 @@
+# First publication creates the package so release-please.yml can use OIDC.
+# Add an npm granular token with publish permission and bypass 2FA as NPM_TOKEN.
+# After success, configure the package's Trusted Publisher for release-please.yml
+# and delete the NPM_TOKEN repository secret.
+name: bootstrap-publish (one-time)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check publishing credential
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::Add the NPM_TOKEN repository secret for the first npm publication."
+            exit 1
+          fi
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm build
+      - run: pnpm test
+      # `pnpm --dir <path> publish` falls through to plain `npm publish`, which
+      # then rejects pnpm's own --no-git-checks flag. --filter stays in pnpm.
+      - run: pnpm --filter storyreel publish --no-git-checks --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
