@@ -31,9 +31,9 @@ jobs:
 
   publish:
     needs: release-please
-    if: ${{ needs.release-please.outputs.releases_created == 'true' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       id-token: write # OIDC for npm Trusted Publishing + provenance
     steps:
       - uses: actions/checkout@v7
@@ -44,13 +44,35 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - run: pnpm install --frozen-lockfile
+      # Publish on a normal Release Please release and also recover from a
+      # version bump that reached main without being published. This keeps a
+      # manual workflow dispatch safe: an existing version is a clean no-op.
+      - name: Check whether the CLI version is already published
+        id: package
+        working-directory: packages/cli
+        shell: bash
+        run: |
+          version="$(node --print "require('./package.json').version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if npm view "storyreel@$version" version --json >/dev/null 2>&1; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.package.outputs.publish == 'true'
+        run: pnpm install --frozen-lockfile
       # Full gate: a release that cannot build or pass its tests never reaches
       # npm. prepublishOnly only bundles, so the checks belong here.
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm build
-      - run: pnpm test
+      - if: steps.package.outputs.publish == 'true'
+        run: pnpm exec playwright install --with-deps chromium
+      - if: steps.package.outputs.publish == 'true'
+        run: pnpm build
+      - if: steps.package.outputs.publish == 'true'
+        run: pnpm test
       # Only `storyreel` publishes; the four workspace packages are private:true
-      # and get inlined into it. No NODE_AUTH_TOKEN: auth is via OIDC (Trusted
-      # Publisher), provenance is automatic.
-      - run: pnpm -r publish --no-git-checks
+      # and get inlined into it. npm (not pnpm recursive publish) performs the
+      # OIDC exchange with the Trusted Publisher; provenance is automatic.
+      - name: Publish storyreel ${{ steps.package.outputs.version }}
+        if: steps.package.outputs.publish == 'true'
+        working-directory: packages/cli
+        run: npm publish --access public

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/BaryshevRS/storyreel/compare/v0.1.0...v0.1.1) (2026-09-13)
+
+
+### Miscellaneous Chores
+
+* verify npm Trusted Publishing through GitHub Actions
+
 ## [0.1.0](https://github.com/BaryshevRS/storyreel/compare/v0.1.0...v0.1.0) (2026-09-07)
 
 
